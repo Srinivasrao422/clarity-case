@@ -27,10 +27,10 @@ export const Footer = () => {
         <div>
           <h4 className="font-display font-semibold mb-4 text-sm">Platform</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/raise" className="hover:text-primary story-link">Raise Complaint</Link></li>
-            <li><Link to="/track" className="hover:text-primary story-link">Track Status</Link></li>
-            <li><Link to="/assistant" className="hover:text-primary story-link">AI Assistant</Link></li>
-            <li><Link to="/dashboard" className="hover:text-primary story-link">Dashboard</Link></li>
+            <li><Link to="/citizen/raise" className="hover:text-primary story-link">Raise Complaint</Link></li>
+            <li><Link to="/citizen/track" className="hover:text-primary story-link">Track Status</Link></li>
+            <li><Link to="/citizen/assistant" className="hover:text-primary story-link">AI Assistant</Link></li>
+            <li><Link to="/portal" className="hover:text-primary story-link">Portals</Link></li>
           </ul>
         </div>
 

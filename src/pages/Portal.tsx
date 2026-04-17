@@ -71,7 +71,7 @@ const Portal = () => {
         <div className="grid lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
           {/* User Portal */}
           <Link
-            to="/dashboard"
+            to="/auth?role=citizen"
             className="group relative rounded-3xl border border-border bg-card p-8 sm:p-10 overflow-hidden hover-lift animate-fade-in-up [animation-delay:200ms]"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -121,7 +121,7 @@ const Portal = () => {
 
           {/* Admin Portal */}
           <Link
-            to="/admin"
+            to="/auth?role=admin"
             className="group relative rounded-3xl border border-border bg-card p-8 sm:p-10 overflow-hidden hover-lift animate-fade-in-up [animation-delay:320ms]"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
