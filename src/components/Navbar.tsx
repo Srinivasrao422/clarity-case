@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 
 const navItems = [
   { label: "Home", to: "/" },
+  { label: "Portals", to: "/portal" },
   { label: "Dashboard", to: "/dashboard" },
   { label: "Raise Complaint", to: "/raise" },
   { label: "Track", to: "/track" },
   { label: "AI Assistant", to: "/assistant" },
-  { label: "Admin", to: "/admin" },
 ];
 
 export const Navbar = () => {
@@ -48,7 +48,7 @@ export const Navbar = () => {
             <Link to="/auth">Sign in</Link>
           </Button>
           <Button asChild variant="hero" className="hidden sm:inline-flex">
-            <Link to="/raise">Raise Complaint</Link>
+            <Link to="/portal">Choose Portal</Link>
           </Button>
           <Button
             variant="ghost"
