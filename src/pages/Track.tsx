@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -79,10 +77,7 @@ const Track = () => {
   const progress = (completed / timeline.length) * 100;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-
-      <div className="container py-10 max-w-4xl">
+    <div className="container py-10 max-w-4xl">
         <div className="mb-8 animate-fade-in">
           <h1 className="font-display text-3xl sm:text-4xl font-bold">Track Your Complaint</h1>
           <p className="text-muted-foreground mt-2">Enter your complaint ID to view the latest status.</p>
@@ -213,9 +208,6 @@ const Track = () => {
             </div>
           </div>
         )}
-      </div>
-
-      <Footer />
     </div>
   );
 };

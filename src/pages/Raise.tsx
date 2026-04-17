@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -61,15 +60,13 @@ const Raise = () => {
 
   const submit = () => {
     toast.success("Complaint submitted! ID: SPC-2024-0893");
-    setTimeout(() => navigate("/track"), 800);
+    setTimeout(() => navigate("/citizen/track"), 800);
   };
 
   const progress = (step / 4) * 100;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="container py-10 max-w-4xl">
+    <div className="container py-10 max-w-4xl">
         <div className="mb-8 animate-fade-in">
           <h1 className="font-display text-3xl sm:text-4xl font-bold">Raise a Complaint</h1>
           <p className="text-muted-foreground mt-2">Fill out the form below. It only takes 2-3 minutes.</p>
@@ -294,7 +291,6 @@ const Raise = () => {
             )}
           </div>
         </div>
-      </div>
     </div>
   );
 };
