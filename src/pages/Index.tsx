@@ -15,6 +15,9 @@ import {
   Users,
   TrendingUp,
   Clock,
+  User,
+  Shield,
+  EyeOff,
 } from "lucide-react";
 
 const features = [
@@ -27,22 +30,22 @@ const features = [
   },
   {
     icon: Activity,
-    title: "Auto Escalation Engine",
-    desc: "If your complaint stalls, the system automatically escalates to higher authorities.",
-    color: "text-destructive",
-    bg: "bg-destructive/10",
-  },
-  {
-    icon: Lock,
-    title: "Secure & Anonymous",
-    desc: "Your identity is protected with bank-grade encryption and optional anonymity.",
+    title: "Real-time Tracking",
+    desc: "Follow every step of your complaint from submission to resolution.",
     color: "text-primary",
     bg: "bg-primary/10",
   },
   {
-    icon: Search,
-    title: "Real-time Tracking",
-    desc: "Follow every step of your complaint from submission to resolution.",
+    icon: Zap,
+    title: "Smart Escalation",
+    desc: "Stalled cases are automatically escalated to higher authorities.",
+    color: "text-destructive",
+    bg: "bg-destructive/10",
+  },
+  {
+    icon: EyeOff,
+    title: "Anonymous Reporting",
+    desc: "Optional anonymity with bank-grade encryption protects your identity.",
     color: "text-secondary",
     bg: "bg-secondary/10",
   },
@@ -54,9 +57,9 @@ const features = [
     bg: "bg-primary/10",
   },
   {
-    icon: Zap,
-    title: "Instant Notifications",
-    desc: "Stay informed via SMS, email, and in-app updates at every milestone.",
+    icon: Lock,
+    title: "Secure & Private",
+    desc: "End-to-end encrypted and never shared with third parties.",
     color: "text-warning",
     bg: "bg-warning/10",
   },
@@ -87,7 +90,7 @@ const Index = () => {
         <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-primary/20 blur-3xl animate-blob" />
         <div className="absolute -top-20 right-0 h-96 w-96 rounded-full bg-secondary/20 blur-3xl animate-blob [animation-delay:3s]" />
 
-        <div className="container relative py-20 lg:py-32">
+        <div className="container relative py-20 lg:py-28">
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border bg-card/60 backdrop-blur text-xs font-medium animate-fade-in">
               <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
@@ -95,33 +98,33 @@ const Index = () => {
             </div>
 
             <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] animate-fade-in-up">
-              File Complaints <span className="text-gradient">Fearlessly.</span>
+              Smart Police Complaint
               <br />
-              Track Justice <span className="text-gradient">Transparently.</span>
+              <span className="text-gradient">Assistant & Auto Escalation</span>
             </h1>
 
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in-up [animation-delay:150ms]">
-              SPCAES is an AI-powered platform that helps you file police complaints,
-              track their progress, and ensures auto-escalation when justice is delayed.
+              Raise complaints fearlessly. Ensure justice transparently — powered
+              by AI guidance, real-time tracking, and smart escalation.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 animate-fade-in-up [animation-delay:300ms]">
-              <Button asChild variant="hero" size="xl">
-                <Link to="/portal">
-                  Choose Your Portal <ArrowRight className="ml-1" />
+              <Button asChild variant="teal" size="xl">
+                <Link to="/auth?role=citizen">
+                  <User className="mr-1" /> Citizen Login <ArrowRight className="ml-1" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="xl">
-                <Link to="/track">
-                  <Search className="mr-1" /> Track Complaint
+              <Button asChild variant="hero" size="xl">
+                <Link to="/auth?role=admin">
+                  <Shield className="mr-1" /> Admin Login <ArrowRight className="ml-1" />
                 </Link>
               </Button>
             </div>
 
-            <div className="flex items-center justify-center gap-6 pt-6 text-xs text-muted-foreground animate-fade-in [animation-delay:500ms]">
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 pt-4 text-xs text-muted-foreground animate-fade-in [animation-delay:500ms]">
               <div className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-success" /> Govt-grade security</div>
               <div className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-success" /> 24/7 AI assistant</div>
-              <div className="hidden sm:flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-success" /> Auto escalation</div>
+              <div className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-success" /> Auto escalation</div>
             </div>
           </div>
 
@@ -143,7 +146,7 @@ const Index = () => {
       </section>
 
       {/* FEATURES */}
-      <section className="container py-20">
+      <section id="features" className="container py-20 scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto mb-14">
           <div className="text-secondary text-sm font-semibold uppercase tracking-wider mb-3">
             Why SPCAES
@@ -174,7 +177,7 @@ const Index = () => {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="relative py-20 bg-gradient-to-b from-transparent via-accent/30 to-transparent">
+      <section id="how" className="relative py-20 bg-gradient-to-b from-transparent via-accent/30 to-transparent scroll-mt-20">
         <div className="container">
           <div className="text-center max-w-2xl mx-auto mb-14">
             <div className="text-secondary text-sm font-semibold uppercase tracking-wider mb-3">
@@ -222,10 +225,14 @@ const Index = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
               <Button asChild variant="teal" size="xl">
-                <Link to="/auth">Get Started Free</Link>
+                <Link to="/auth?role=citizen">
+                  <User className="mr-1" /> Citizen Login
+                </Link>
               </Button>
               <Button asChild variant="outline" size="xl" className="bg-transparent border-white/30 text-white hover:bg-white/10 hover:text-white">
-                <Link to="/assistant">Try AI Assistant</Link>
+                <Link to="/auth?role=admin">
+                  <Shield className="mr-1" /> Admin Login
+                </Link>
               </Button>
             </div>
           </div>

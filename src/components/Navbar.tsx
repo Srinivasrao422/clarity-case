@@ -1,22 +1,20 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, Shield } from "lucide-react";
 import { Logo } from "./Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
   { label: "Home", to: "/" },
+  { label: "How it works", to: "/#how" },
+  { label: "Features", to: "/#features" },
   { label: "Portals", to: "/portal" },
-  { label: "Dashboard", to: "/dashboard" },
-  { label: "Raise Complaint", to: "/raise" },
-  { label: "Track", to: "/track" },
-  { label: "AI Assistant", to: "/assistant" },
 ];
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 glass">
@@ -25,7 +23,7 @@ export const Navbar = () => {
 
         <nav className="hidden lg:flex items-center gap-1">
           {navItems.map((item) => {
-            const active = pathname === item.to;
+            const active = item.to === "/" ? pathname === "/" && !hash : pathname + hash === item.to;
             return (
               <Link
                 key={item.to}
@@ -45,10 +43,14 @@ export const Navbar = () => {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Button asChild variant="ghost" className="hidden sm:inline-flex">
-            <Link to="/auth">Sign in</Link>
+            <Link to="/auth?role=citizen">
+              <User className="h-4 w-4 mr-1" /> Citizen Login
+            </Link>
           </Button>
           <Button asChild variant="hero" className="hidden sm:inline-flex">
-            <Link to="/portal">Choose Portal</Link>
+            <Link to="/auth?role=admin">
+              <Shield className="h-4 w-4 mr-1" /> Admin Login
+            </Link>
           </Button>
           <Button
             variant="ghost"
@@ -70,21 +72,21 @@ export const Navbar = () => {
                 key={item.to}
                 to={item.to}
                 onClick={() => setOpen(false)}
-                className={`px-3 py-2.5 rounded-lg text-sm font-medium ${
-                  pathname === item.to
-                    ? "bg-accent text-primary"
-                    : "text-muted-foreground hover:bg-accent/60"
-                }`}
+                className="px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent/60"
               >
                 {item.label}
               </Link>
             ))}
-            <div className="flex gap-2 pt-2">
-              <Button asChild variant="outline" className="flex-1">
-                <Link to="/auth">Sign in</Link>
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              <Button asChild variant="outline">
+                <Link to="/auth?role=citizen">
+                  <User className="h-4 w-4 mr-1" /> Citizen
+                </Link>
               </Button>
-              <Button asChild variant="hero" className="flex-1">
-                <Link to="/raise">Raise</Link>
+              <Button asChild variant="hero">
+                <Link to="/auth?role=admin">
+                  <Shield className="h-4 w-4 mr-1" /> Admin
+                </Link>
               </Button>
             </div>
           </div>
