@@ -11,6 +11,7 @@ import Raise from "./pages/Raise.tsx";
 import Track from "./pages/Track.tsx";
 import Assistant from "./pages/Assistant.tsx";
 import Admin from "./pages/Admin.tsx";
+import Portal from "./pages/Portal.tsx";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/track" element={<Track />} />
           <Route path="/assistant" element={<Assistant />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/portal" element={<Portal />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

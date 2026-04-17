@@ -107,8 +107,8 @@ const Index = () => {
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 animate-fade-in-up [animation-delay:300ms]">
               <Button asChild variant="hero" size="xl">
-                <Link to="/raise">
-                  Raise a Complaint <ArrowRight className="ml-1" />
+                <Link to="/portal">
+                  Choose Your Portal <ArrowRight className="ml-1" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="xl">
