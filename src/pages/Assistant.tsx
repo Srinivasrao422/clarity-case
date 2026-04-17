@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Bot, Send, Sparkles, User, Paperclip } from "lucide-react";
@@ -68,10 +67,7 @@ const Assistant = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
-
-      <div className="container py-6 flex-1 flex flex-col max-w-3xl">
+    <div className="container py-6 flex-1 flex flex-col max-w-3xl min-h-[calc(100vh-4rem)]">
         {/* Header */}
         <div className="flex items-center gap-4 mb-4 animate-fade-in">
           <div className="relative">
@@ -171,7 +167,6 @@ const Assistant = () => {
         <p className="text-xs text-center text-muted-foreground mt-3">
           AI assistance is for guidance. Your complaint is officially filed only after submission.
         </p>
-      </div>
     </div>
   );
 };
