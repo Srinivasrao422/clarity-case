@@ -1,17 +1,41 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Filter, MoreVertical, Eye, UserPlus, Search } from "lucide-react";
 import { toast } from "sonner";
+import { SLABadge } from "@/components/SLABadge";
+
+const officers = [
+  "SI R. Verma · MG Road",
+  "Insp. A. Khan · Cyber Cell",
+  "ASI M. Singh · Traffic",
+  "SI N. Desai · Women & Child",
+  "Insp. S. Gupta · EOW",
+];
 
 const complaints = [
-  { id: "SPC-2024-0892", citizen: "Aarav Sharma", category: "Theft", station: "MG Road", priority: "High", status: "Escalated", date: "Mar 12" },
-  { id: "SPC-2024-0891", citizen: "Priya Mehta", category: "Cybercrime", station: "Cyber Cell", priority: "High", status: "In Progress", date: "Mar 12" },
-  { id: "SPC-2024-0890", citizen: "Rohan Iyer", category: "Public Nuisance", station: "Indira Nagar", priority: "Low", status: "Resolved", date: "Mar 11" },
-  { id: "SPC-2024-0889", citizen: "Neha Kapoor", category: "Missing Person", station: "HSR Layout", priority: "High", status: "In Progress", date: "Mar 11" },
-  { id: "SPC-2024-0888", citizen: "Vikram Rao", category: "Fraud", station: "Whitefield", priority: "Medium", status: "Submitted", date: "Mar 10" },
-  { id: "SPC-2024-0887", citizen: "Anjali Singh", category: "Vehicle", station: "Koramangala", priority: "Medium", status: "Resolved", date: "Mar 10" },
-  { id: "SPC-2024-0886", citizen: "Karthik Nair", category: "Domestic", station: "Jayanagar", priority: "High", status: "In Progress", date: "Mar 09" },
+  { id: "SPC-2024-0892", citizen: "Aarav Sharma", category: "Theft", station: "MG Road", priority: "High", status: "Escalated", date: "Mar 12", officer: "SI R. Verma", slaHours: -12 },
+  { id: "SPC-2024-0891", citizen: "Priya Mehta", category: "Cybercrime", station: "Cyber Cell", priority: "High", status: "In Progress", date: "Mar 12", officer: "Insp. A. Khan", slaHours: 8 },
+  { id: "SPC-2024-0890", citizen: "Rohan Iyer", category: "Public Nuisance", station: "Indira Nagar", priority: "Low", status: "Resolved", date: "Mar 11", officer: "SI K. Pillai", slaHours: 0 },
+  { id: "SPC-2024-0889", citizen: "Neha Kapoor", category: "Missing Person", station: "HSR Layout", priority: "High", status: "In Progress", date: "Mar 11", officer: "Insp. P. Rao", slaHours: 14 },
+  { id: "SPC-2024-0888", citizen: "Vikram Rao", category: "Fraud", station: "Whitefield", priority: "Medium", status: "Submitted", date: "Mar 10", officer: "Unassigned", slaHours: 48 },
+  { id: "SPC-2024-0887", citizen: "Anjali Singh", category: "Vehicle", station: "Koramangala", priority: "Medium", status: "Resolved", date: "Mar 10", officer: "ASI M. Singh", slaHours: 0 },
+  { id: "SPC-2024-0886", citizen: "Karthik Nair", category: "Domestic", station: "Jayanagar", priority: "High", status: "In Progress", date: "Mar 09", officer: "SI N. Desai", slaHours: 22 },
 ];
 
 const statusStyles: Record<string, string> = {
@@ -47,8 +71,18 @@ const Complaints = () => {
     );
   });
 
+  const [assignFor, setAssignFor] = useState<string | null>(null);
+  const [chosenOfficer, setChosenOfficer] = useState(officers[0]);
+
   const updateStatus = (id: string) => toast.success(`${id} status updated`);
-  const assignOfficer = (id: string) => toast.success(`Officer assigned to ${id}`);
+  const openAssign = (id: string) => {
+    setAssignFor(id);
+    setChosenOfficer(officers[0]);
+  };
+  const confirmAssign = () => {
+    toast.success(`${chosenOfficer.split(" · ")[0]} assigned to ${assignFor}`);
+    setAssignFor(null);
+  };
 
   return (
     <div className="space-y-6">
