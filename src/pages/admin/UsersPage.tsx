@@ -104,9 +104,10 @@ const UsersPage = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="py-3 px-5 hidden md:table-cell">
-                    <div className="text-sm">{u.email}</div>
-                    <div className="text-xs text-muted-foreground">{u.phone}</div>
+                  <td className="py-3 px-5">
+                    <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium border inline-flex items-center gap-1 ${roleStyles[u.role].bg}`}>
+                      <RoleIcon className="h-3 w-3" /> {u.role}
+                    </span>
                   </td>
                   <td className="py-3 px-5 hidden lg:table-cell">{u.complaints}</td>
                   <td className="py-3 px-5">
