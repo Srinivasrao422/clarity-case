@@ -19,6 +19,9 @@ import {
   Users,
   Home,
   Briefcase,
+  Sparkles,
+  Scale,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -38,6 +41,67 @@ const categories = [
   { id: "fraud", label: "Fraud / Financial", icon: Briefcase, color: "text-destructive", bg: "bg-destructive/10" },
 ];
 
+const templates = [
+  {
+    id: "theft",
+    label: "Theft",
+    icon: ShieldAlert,
+    title: "Theft incident report",
+    description:
+      "On [date] at approximately [time], my [item description] was stolen from [location]. The item is valued at approximately ₹[amount]. I have / do not have CCTV footage and witnesses available.",
+    category: "theft",
+  },
+  {
+    id: "cyber",
+    label: "Cyber Fraud",
+    icon: Wifi,
+    title: "Online financial fraud",
+    description:
+      "On [date], I received a call/message from [number/email] claiming to be from [bank/company]. I was deceived into sharing OTP / making a UPI transfer of ₹[amount] to account [details]. Transaction reference: [TXN ID].",
+    category: "cyber",
+  },
+  {
+    id: "harass",
+    label: "Harassment",
+    icon: AlertTriangle,
+    title: "Harassment complaint",
+    description:
+      "I am being repeatedly harassed by [name/unknown person] at [location/online platform] since [date]. The harassment includes [verbal/physical/online messages]. I fear for my safety.",
+    category: "domestic",
+  },
+];
+
+// Lightweight keyword-based auto-categorization
+const autoCategorize = (text: string): string | null => {
+  const t = text.toLowerCase();
+  if (/(steal|stolen|theft|robber|snatch|burgl)/.test(t)) return "theft";
+  if (/(upi|otp|fraud|scam|phish|hack|cyber|account|bank)/.test(t)) return "cyber";
+  if (/(vehicle|bike|car|accident|hit and run|traffic)/.test(t)) return "vehicle";
+  if (/(missing|kidnap|abduct|disappear)/.test(t)) return "missing";
+  if (/(domestic|harass|abuse|violence|stalk|threat)/.test(t)) return "domestic";
+  if (/(cheat|forgery|ponzi|investment fraud|fake)/.test(t)) return "fraud";
+  return null;
+};
+
+// Suggested IPC sections per category
+const legalSuggestions: Record<string, { code: string; title: string; note: string }[]> = {
+  theft: [
+    { code: "IPC §378", title: "Theft", note: "Definition of theft of movable property." },
+    { code: "IPC §379", title: "Punishment", note: "Up to 3 years imprisonment, or fine, or both." },
+  ],
+  cyber: [
+    { code: "IT Act §66C", title: "Identity Theft", note: "Fraudulent use of password/electronic signature." },
+    { code: "IT Act §66D", title: "Cheating by Personation", note: "Up to 3 years and ₹1L fine." },
+  ],
+  vehicle: [{ code: "MV Act §184", title: "Dangerous Driving", note: "Fine up to ₹5,000 or 6 months." }],
+  missing: [{ code: "IPC §365", title: "Kidnapping", note: "If kidnapping is suspected, up to 7 years." }],
+  domestic: [
+    { code: "IPC §354", title: "Outraging Modesty", note: "1–5 years imprisonment." },
+    { code: "IPC §509", title: "Insulting Modesty", note: "Word/gesture intended to insult." },
+  ],
+  fraud: [{ code: "IPC §420", title: "Cheating", note: "Up to 7 years and fine." }],
+};
+
 const Raise = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -49,6 +113,7 @@ const Raise = () => {
     files: [] as File[],
   });
   const [drag, setDrag] = useState(false);
+  const [aiSuggested, setAiSuggested] = useState<string | null>(null);
 
   const next = () => setStep((s) => Math.min(4, s + 1));
   const prev = () => setStep((s) => Math.max(1, s - 1));
@@ -58,12 +123,27 @@ const Raise = () => {
     setForm({ ...form, files: [...form.files, ...Array.from(files)] });
   };
 
+  const applyTemplate = (t: (typeof templates)[number]) => {
+    setForm((f) => ({ ...f, title: t.title, description: t.description, category: t.category }));
+    setAiSuggested(t.category);
+    toast.success(`Template applied: ${t.label}`);
+  };
+
+  const handleDescChange = (val: string) => {
+    setForm((f) => ({ ...f, description: val }));
+    const detected = autoCategorize(val);
+    if (detected && !form.category) {
+      setAiSuggested(detected);
+    }
+  };
+
   const submit = () => {
     toast.success("Complaint submitted! ID: SPC-2024-0893");
     setTimeout(() => navigate("/citizen/track"), 800);
   };
 
   const progress = (step / 4) * 100;
+  const suggestions = form.category ? legalSuggestions[form.category] : null;
 
   return (
     <div className="container py-10 max-w-4xl">
@@ -121,6 +201,29 @@ const Raise = () => {
                 <h2 className="font-display text-xl font-semibold">Complaint details</h2>
                 <p className="text-sm text-muted-foreground mt-1">Describe what happened in your own words.</p>
               </div>
+
+              {/* Templates */}
+              <div className="rounded-xl border border-border bg-accent/30 p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="h-4 w-4 text-secondary" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Quick templates
+                  </span>
+                </div>
+                <div className="grid sm:grid-cols-3 gap-2">
+                  {templates.map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => applyTemplate(t)}
+                      className="flex items-center gap-2 p-3 rounded-lg border border-border bg-card hover:border-primary hover:bg-primary/5 transition-all text-left"
+                    >
+                      <t.icon className="h-4 w-4 text-primary shrink-0" />
+                      <span className="text-sm font-medium">{t.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div>
                 <Label htmlFor="title">Complaint title *</Label>
                 <Input
@@ -138,11 +241,34 @@ const Raise = () => {
                   className="mt-1.5 min-h-[140px]"
                   placeholder="Provide as much detail as possible: when, where, who was involved, what happened..."
                   value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  onChange={(e) => handleDescChange(e.target.value)}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                   Tip: Include date, time and any witness information.
                 </p>
+                {aiSuggested && !form.category && (
+                  <div className="mt-3 rounded-lg border border-secondary/30 bg-secondary/5 p-3 flex items-start gap-3 animate-fade-in">
+                    <Zap className="h-4 w-4 text-secondary shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">AI suggests category</div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Based on your description, this looks like a{" "}
+                        <span className="font-medium text-foreground">
+                          {categories.find((c) => c.id === aiSuggested)?.label}
+                        </span>{" "}
+                        case.
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="teal"
+                      className="h-7 text-xs"
+                      onClick={() => setForm({ ...form, category: aiSuggested })}
+                    >
+                      Apply
+                    </Button>
+                  </div>
+                )}
               </div>
               <div>
                 <Label htmlFor="location">Location of incident *</Label>
@@ -181,6 +307,28 @@ const Raise = () => {
                   </button>
                 ))}
               </div>
+
+              {suggestions && (
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 animate-fade-in">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Scale className="h-4 w-4 text-primary" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+                      Suggested legal sections
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {suggestions.map((s) => (
+                      <div key={s.code} className="flex items-start gap-3 p-3 rounded-lg bg-card border border-border">
+                        <span className="text-xs font-mono font-semibold text-primary shrink-0 mt-0.5">{s.code}</span>
+                        <div className="flex-1">
+                          <div className="text-sm font-medium">{s.title}</div>
+                          <div className="text-xs text-muted-foreground">{s.note}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

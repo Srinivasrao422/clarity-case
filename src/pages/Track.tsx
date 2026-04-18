@@ -12,11 +12,16 @@ import {
   User,
   Phone,
   Inbox,
+  Eye,
+  Edit3,
+  Download,
+  Printer,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const timeline = [
   {
-    status: "Submitted",
+    status: "Created",
     date: "Mar 12, 2024 · 10:32 AM",
     desc: "Complaint received and logged in system.",
     icon: FileText,
@@ -24,18 +29,18 @@ const timeline = [
     color: "primary",
   },
   {
-    status: "Under Review",
-    date: "Mar 12, 2024 · 02:15 PM",
-    desc: "Assigned to Sub-Inspector R. Verma at MG Road Station.",
-    icon: User,
+    status: "Viewed by Officer",
+    date: "Mar 12, 2024 · 11:48 AM",
+    desc: "SI R. Verma at MG Road Station opened the case file.",
+    icon: Eye,
     done: true,
     color: "primary",
   },
   {
-    status: "In Progress",
+    status: "Updated — Under Investigation",
     date: "Mar 14, 2024 · 09:00 AM",
     desc: "Investigation initiated. Witness statements being recorded.",
-    icon: Clock,
+    icon: Edit3,
     done: true,
     color: "warning",
   },
