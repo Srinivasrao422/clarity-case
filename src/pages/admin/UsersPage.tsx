@@ -1,25 +1,36 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Ban, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Search, Ban, CheckCircle2, ShieldCheck, Crown, Shield, User as UserIcon } from "lucide-react";
 import { toast } from "sonner";
+
+type Role = "Citizen" | "Officer" | "Senior Officer" | "Admin";
 
 interface UserRow {
   id: string;
   name: string;
   email: string;
   phone: string;
+  role: Role;
   complaints: number;
   status: "active" | "blocked";
   joined: string;
 }
 
+const roleStyles: Record<Role, { bg: string; icon: React.ElementType }> = {
+  Citizen: { bg: "bg-muted text-muted-foreground border-border", icon: UserIcon },
+  Officer: { bg: "bg-primary/10 text-primary border-primary/20", icon: Shield },
+  "Senior Officer": { bg: "bg-secondary/10 text-secondary border-secondary/20", icon: ShieldCheck },
+  Admin: { bg: "bg-destructive/10 text-destructive border-destructive/20", icon: Crown },
+};
+
 const initial: UserRow[] = [
-  { id: "U-1042", name: "Aarav Sharma", email: "aarav@example.com", phone: "+91 98765 43210", complaints: 12, status: "active", joined: "Jan 2024" },
-  { id: "U-1041", name: "Priya Mehta", email: "priya.m@example.com", phone: "+91 90000 11122", complaints: 4, status: "active", joined: "Feb 2024" },
-  { id: "U-1040", name: "Rohan Iyer", email: "rohan@example.com", phone: "+91 88888 77777", complaints: 1, status: "active", joined: "Mar 2024" },
-  { id: "U-1039", name: "Spam User", email: "spam@bad.com", phone: "+91 11111 22222", complaints: 28, status: "blocked", joined: "Dec 2023" },
-  { id: "U-1038", name: "Neha Kapoor", email: "neha.k@example.com", phone: "+91 99887 76655", complaints: 6, status: "active", joined: "Nov 2023" },
+  { id: "U-1042", name: "Aarav Sharma", email: "aarav@example.com", phone: "+91 98765 43210", role: "Citizen", complaints: 12, status: "active", joined: "Jan 2024" },
+  { id: "U-1041", name: "Priya Mehta", email: "priya.m@example.com", phone: "+91 90000 11122", role: "Citizen", complaints: 4, status: "active", joined: "Feb 2024" },
+  { id: "O-2003", name: "SI R. Verma", email: "verma@police.gov", phone: "+91 88880 11122", role: "Officer", complaints: 84, status: "active", joined: "Aug 2022" },
+  { id: "O-2007", name: "ACP M. Joshi", email: "joshi@police.gov", phone: "+91 88880 99887", role: "Senior Officer", complaints: 240, status: "active", joined: "Mar 2019" },
+  { id: "U-1039", name: "Spam User", email: "spam@bad.com", phone: "+91 11111 22222", role: "Citizen", complaints: 28, status: "blocked", joined: "Dec 2023" },
+  { id: "A-3001", name: "Insp. R. Kumar", email: "kumar@police.gov", phone: "+91 99999 11111", role: "Admin", complaints: 0, status: "active", joined: "Jun 2018" },
 ];
 
 const UsersPage = () => {
