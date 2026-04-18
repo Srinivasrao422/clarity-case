@@ -9,7 +9,25 @@ import {
   TrendingDown,
   ChevronDown,
   MoreVertical,
+  Timer,
+  Percent,
+  Activity,
 } from "lucide-react";
+import { AuditLog, type AuditEntry } from "@/components/AuditLog";
+
+const adminAudit: AuditEntry[] = [
+  { type: "escalated", actor: "System", role: "Auto", time: "10 min ago", note: "SPC-2024-0892 escalated to ACP." },
+  { type: "assigned", actor: "Insp. R. Kumar", role: "Admin", time: "1 hr ago", note: "SPC-2024-0891 assigned to SI Khan." },
+  { type: "updated", actor: "SI Verma", role: "Officer", time: "3 hr ago", note: "SPC-2024-0876 marked Resolved." },
+  { type: "viewed", actor: "ACP M. Joshi", role: "Senior Officer", time: "5 hr ago" },
+];
+
+const performance = [
+  { label: "Avg Resolution", value: "3.2d", icon: Timer, color: "text-secondary", bg: "bg-secondary/10" },
+  { label: "Escalation Rate", value: "8.4%", icon: TrendingUp, color: "text-destructive", bg: "bg-destructive/10" },
+  { label: "SLA Compliance", value: "91%", icon: Percent, color: "text-success", bg: "bg-success/10" },
+  { label: "Active Officers", value: "42", icon: Activity, color: "text-primary", bg: "bg-primary/10" },
+];
 
 const stats = [
   { label: "Total Cases", value: "1,284", change: "+12.4%", up: true, icon: FileText, color: "text-primary", bg: "bg-primary/10" },
@@ -90,6 +108,30 @@ const AdminDashboard = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Performance metrics */}
+      <div className="rounded-2xl border border-border bg-card p-5 animate-fade-in-up">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-display font-semibold">Performance Metrics</h3>
+            <p className="text-xs text-muted-foreground">Department-wide accountability</p>
+          </div>
+          <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-success/10 text-success border border-success/20">
+            Live
+          </span>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {performance.map((p) => (
+            <div key={p.label} className="rounded-xl border border-border p-4 hover-lift">
+              <div className={`h-9 w-9 rounded-lg ${p.bg} flex items-center justify-center mb-2`}>
+                <p.icon className={`h-4 w-4 ${p.color}`} />
+              </div>
+              <div className="font-display text-2xl font-bold">{p.value}</div>
+              <div className="text-xs text-muted-foreground">{p.label}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-4">
@@ -174,6 +216,11 @@ const AdminDashboard = () => {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Audit log */}
+      <div className="animate-fade-in-up">
+        <AuditLog entries={adminAudit} title="Recent Admin Activity" compact />
       </div>
     </div>
   );
