@@ -19,6 +19,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
 import { NotificationBell } from "@/components/NotificationBell";
+import { ConsentNotice } from "@/components/ConsentNotice";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -186,6 +187,7 @@ export const CitizenLayout = () => {
       </main>
 
       <Footer />
+      <ConsentNotice />
     </div>
   );
 };
