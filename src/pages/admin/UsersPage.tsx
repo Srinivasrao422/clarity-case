@@ -80,6 +80,7 @@ const UsersPage = () => {
             <thead>
               <tr className="text-xs text-muted-foreground uppercase tracking-wider border-b border-border">
                 <th className="text-left font-medium py-3 px-5">User</th>
+                <th className="text-left font-medium py-3 px-5">Role</th>
                 <th className="text-left font-medium py-3 px-5 hidden md:table-cell">Contact</th>
                 <th className="text-left font-medium py-3 px-5 hidden lg:table-cell">Complaints</th>
                 <th className="text-left font-medium py-3 px-5">Status</th>
@@ -88,7 +89,9 @@ const UsersPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {filtered.map((u) => (
+              {filtered.map((u) => {
+                const RoleIcon = roleStyles[u.role].icon;
+                return (
                 <tr key={u.id} className="hover:bg-accent/40 transition-colors">
                   <td className="py-3 px-5">
                     <div className="flex items-center gap-3">
