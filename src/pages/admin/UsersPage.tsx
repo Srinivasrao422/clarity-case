@@ -109,6 +109,10 @@ const UsersPage = () => {
                       <RoleIcon className="h-3 w-3" /> {u.role}
                     </span>
                   </td>
+                  <td className="py-3 px-5 hidden md:table-cell">
+                    <div className="text-sm">{u.email}</div>
+                    <div className="text-xs text-muted-foreground">{u.phone}</div>
+                  </td>
                   <td className="py-3 px-5 hidden lg:table-cell">{u.complaints}</td>
                   <td className="py-3 px-5">
                     {u.status === "active" ? (
@@ -140,7 +144,8 @@ const UsersPage = () => {
                     </Button>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
