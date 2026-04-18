@@ -10,6 +10,10 @@ import {
   Bot,
   TrendingUp,
   ArrowUpRight,
+  Activity,
+  Timer,
+  Percent,
+  ShieldAlert,
 } from "lucide-react";
 
 const summary = [
