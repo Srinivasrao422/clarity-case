@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   FileText,
   Tag,
@@ -22,8 +23,13 @@ import {
   Sparkles,
   Scale,
   Zap,
+  Download,
+  Building2,
+  Clock,
+  ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
+import { getDepartment } from "@/lib/departments";
 
 const steps = [
   { n: 1, label: "Details", icon: FileText },
@@ -114,6 +120,8 @@ const Raise = () => {
   });
   const [drag, setDrag] = useState(false);
   const [aiSuggested, setAiSuggested] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
+  const [receipt, setReceipt] = useState<null | { id: string; dept: string; sla: number; officer: string; ts: string }>(null);
 
   const next = () => setStep((s) => Math.min(4, s + 1));
   const prev = () => setStep((s) => Math.max(1, s - 1));
@@ -138,12 +146,98 @@ const Raise = () => {
   };
 
   const submit = () => {
-    toast.success("Complaint submitted! ID: SPC-2024-0893");
-    setTimeout(() => navigate("/citizen/track"), 800);
+    if (!consent) {
+      toast.error("Please accept the privacy & truthfulness declaration");
+      return;
+    }
+    const dept = getDepartment(form.category);
+    const id = `SPC-2024-${Math.floor(900 + Math.random() * 99)}`;
+    setReceipt({
+      id,
+      dept: dept.department,
+      sla: dept.sla,
+      officer: dept.officer,
+      ts: new Date().toLocaleString(),
+    });
+    toast.success(`Complaint registered · ${id}`);
+  };
+
+  const downloadReceipt = () => {
+    if (!receipt) return;
+    const content = `SPCAES — OFFICIAL ACKNOWLEDGEMENT RECEIPT
+=========================================
+Complaint ID : ${receipt.id}
+Filed On     : ${receipt.ts}
+Title        : ${form.title}
+Category     : ${categories.find((c) => c.id === form.category)?.label}
+Location     : ${form.location}
+Department   : ${receipt.dept}
+Assigned To  : ${receipt.officer}
+SLA Deadline : ${receipt.sla} hours
+Status       : Submitted
+=========================================
+Keep this receipt for tracking and reference.
+`;
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${receipt.id}-receipt.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Receipt downloaded");
   };
 
   const progress = (step / 4) * 100;
   const suggestions = form.category ? legalSuggestions[form.category] : null;
+  const routedDept = form.category ? getDepartment(form.category) : null;
+
+  if (receipt) {
+    return (
+      <div className="container py-10 max-w-2xl">
+        <div className="rounded-2xl border-2 border-success/30 bg-card shadow-soft overflow-hidden animate-scale-in">
+          <div className="p-6 bg-success/10 border-b border-success/20 text-center">
+            <div className="h-14 w-14 rounded-full bg-success flex items-center justify-center mx-auto mb-3">
+              <CheckCircle2 className="h-7 w-7 text-success-foreground" />
+            </div>
+            <h2 className="font-display text-2xl font-bold">Complaint Acknowledged</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              An official receipt has been generated. Keep this ID for tracking.
+            </p>
+          </div>
+          <div className="p-6 space-y-4">
+            <div className="rounded-xl border border-dashed border-border p-4 text-center">
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">Complaint ID</div>
+              <div className="font-display text-3xl font-bold text-primary mt-1">{receipt.id}</div>
+              <div className="text-xs text-muted-foreground mt-1">Filed at {receipt.ts}</div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3 text-sm">
+              <div className="rounded-lg border border-border p-3">
+                <div className="text-xs text-muted-foreground flex items-center gap-1"><Building2 className="h-3 w-3" /> Routed to</div>
+                <div className="font-medium mt-1">{receipt.dept}</div>
+              </div>
+              <div className="rounded-lg border border-border p-3">
+                <div className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" /> SLA Deadline</div>
+                <div className="font-medium mt-1">{receipt.sla} hours</div>
+              </div>
+              <div className="rounded-lg border border-border p-3 sm:col-span-2">
+                <div className="text-xs text-muted-foreground flex items-center gap-1"><ShieldCheck className="h-3 w-3" /> Assigned Officer</div>
+                <div className="font-medium mt-1">{receipt.officer}</div>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
+              <Button variant="hero" onClick={downloadReceipt} className="flex-1">
+                <Download className="h-4 w-4 mr-1" /> Download Receipt
+              </Button>
+              <Button variant="outline" onClick={() => navigate("/citizen/track")} className="flex-1">
+                Track Status
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-10 max-w-4xl">
