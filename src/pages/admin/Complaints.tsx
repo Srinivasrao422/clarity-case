@@ -1,17 +1,41 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Filter, MoreVertical, Eye, UserPlus, Search } from "lucide-react";
 import { toast } from "sonner";
+import { SLABadge } from "@/components/SLABadge";
+
+const officers = [
+  "SI R. Verma · MG Road",
+  "Insp. A. Khan · Cyber Cell",
+  "ASI M. Singh · Traffic",
+  "SI N. Desai · Women & Child",
+  "Insp. S. Gupta · EOW",
+];
 
 const complaints = [
-  { id: "SPC-2024-0892", citizen: "Aarav Sharma", category: "Theft", station: "MG Road", priority: "High", status: "Escalated", date: "Mar 12" },
-  { id: "SPC-2024-0891", citizen: "Priya Mehta", category: "Cybercrime", station: "Cyber Cell", priority: "High", status: "In Progress", date: "Mar 12" },
-  { id: "SPC-2024-0890", citizen: "Rohan Iyer", category: "Public Nuisance", station: "Indira Nagar", priority: "Low", status: "Resolved", date: "Mar 11" },
-  { id: "SPC-2024-0889", citizen: "Neha Kapoor", category: "Missing Person", station: "HSR Layout", priority: "High", status: "In Progress", date: "Mar 11" },
-  { id: "SPC-2024-0888", citizen: "Vikram Rao", category: "Fraud", station: "Whitefield", priority: "Medium", status: "Submitted", date: "Mar 10" },
-  { id: "SPC-2024-0887", citizen: "Anjali Singh", category: "Vehicle", station: "Koramangala", priority: "Medium", status: "Resolved", date: "Mar 10" },
-  { id: "SPC-2024-0886", citizen: "Karthik Nair", category: "Domestic", station: "Jayanagar", priority: "High", status: "In Progress", date: "Mar 09" },
+  { id: "SPC-2024-0892", citizen: "Aarav Sharma", category: "Theft", station: "MG Road", priority: "High", status: "Escalated", date: "Mar 12", officer: "SI R. Verma", slaHours: -12 },
+  { id: "SPC-2024-0891", citizen: "Priya Mehta", category: "Cybercrime", station: "Cyber Cell", priority: "High", status: "In Progress", date: "Mar 12", officer: "Insp. A. Khan", slaHours: 8 },
+  { id: "SPC-2024-0890", citizen: "Rohan Iyer", category: "Public Nuisance", station: "Indira Nagar", priority: "Low", status: "Resolved", date: "Mar 11", officer: "SI K. Pillai", slaHours: 0 },
+  { id: "SPC-2024-0889", citizen: "Neha Kapoor", category: "Missing Person", station: "HSR Layout", priority: "High", status: "In Progress", date: "Mar 11", officer: "Insp. P. Rao", slaHours: 14 },
+  { id: "SPC-2024-0888", citizen: "Vikram Rao", category: "Fraud", station: "Whitefield", priority: "Medium", status: "Submitted", date: "Mar 10", officer: "Unassigned", slaHours: 48 },
+  { id: "SPC-2024-0887", citizen: "Anjali Singh", category: "Vehicle", station: "Koramangala", priority: "Medium", status: "Resolved", date: "Mar 10", officer: "ASI M. Singh", slaHours: 0 },
+  { id: "SPC-2024-0886", citizen: "Karthik Nair", category: "Domestic", station: "Jayanagar", priority: "High", status: "In Progress", date: "Mar 09", officer: "SI N. Desai", slaHours: 22 },
 ];
 
 const statusStyles: Record<string, string> = {
@@ -47,8 +71,18 @@ const Complaints = () => {
     );
   });
 
+  const [assignFor, setAssignFor] = useState<string | null>(null);
+  const [chosenOfficer, setChosenOfficer] = useState(officers[0]);
+
   const updateStatus = (id: string) => toast.success(`${id} status updated`);
-  const assignOfficer = (id: string) => toast.success(`Officer assigned to ${id}`);
+  const openAssign = (id: string) => {
+    setAssignFor(id);
+    setChosenOfficer(officers[0]);
+  };
+  const confirmAssign = () => {
+    toast.success(`${chosenOfficer.split(" · ")[0]} assigned to ${assignFor}`);
+    setAssignFor(null);
+  };
 
   return (
     <div className="space-y-6">
@@ -118,10 +152,10 @@ const Complaints = () => {
                 <th className="text-left font-medium py-3 px-5">ID</th>
                 <th className="text-left font-medium py-3 px-5">Citizen</th>
                 <th className="text-left font-medium py-3 px-5 hidden md:table-cell">Category</th>
-                <th className="text-left font-medium py-3 px-5 hidden lg:table-cell">Station</th>
+                <th className="text-left font-medium py-3 px-5 hidden lg:table-cell">Officer</th>
                 <th className="text-left font-medium py-3 px-5">Priority</th>
+                <th className="text-left font-medium py-3 px-5">SLA</th>
                 <th className="text-left font-medium py-3 px-5">Status</th>
-                <th className="text-left font-medium py-3 px-5 hidden md:table-cell">Date</th>
                 <th className="text-right font-medium py-3 px-5">Actions</th>
               </tr>
             </thead>
@@ -138,24 +172,36 @@ const Complaints = () => {
                     </div>
                   </td>
                   <td className="py-3 px-5 hidden md:table-cell text-muted-foreground">{c.category}</td>
-                  <td className="py-3 px-5 hidden lg:table-cell text-muted-foreground">{c.station}</td>
+                  <td className="py-3 px-5 hidden lg:table-cell">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-xs ${c.officer === "Unassigned" ? "text-destructive italic" : "text-muted-foreground"}`}>
+                        {c.officer}
+                      </span>
+                    </div>
+                  </td>
                   <td className="py-3 px-5">
                     <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${priorityStyles[c.priority]}`}>
                       {c.priority}
                     </span>
                   </td>
                   <td className="py-3 px-5">
+                    {c.status === "Resolved" ? (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    ) : (
+                      <SLABadge hoursLeft={c.slaHours} />
+                    )}
+                  </td>
+                  <td className="py-3 px-5">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${statusStyles[c.status]}`}>
                       {c.status}
                     </span>
                   </td>
-                  <td className="py-3 px-5 hidden md:table-cell text-muted-foreground text-xs">{c.date}</td>
                   <td className="py-3 px-5 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button size="sm" variant="ghost" className="h-8" onClick={() => toast(`Viewing ${c.id}`)}>
                         <Eye className="h-3.5 w-3.5" />
                       </Button>
-                      <Button size="sm" variant="ghost" className="h-8" onClick={() => assignOfficer(c.id)}>
+                      <Button size="sm" variant="ghost" className="h-8" onClick={() => openAssign(c.id)}>
                         <UserPlus className="h-3.5 w-3.5" />
                       </Button>
                       <Button size="sm" variant="outline" className="h-8" onClick={() => updateStatus(c.id)}>
@@ -179,6 +225,33 @@ const Complaints = () => {
           </table>
         </div>
       </div>
+
+      <Dialog open={!!assignFor} onOpenChange={(o) => !o && setAssignFor(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign / Reassign Officer</DialogTitle>
+            <DialogDescription>
+              Select an officer to handle complaint {assignFor}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <Select value={chosenOfficer} onValueChange={setChosenOfficer}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {officers.map((o) => (
+                  <SelectItem key={o} value={o}>{o}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAssignFor(null)}>Cancel</Button>
+            <Button variant="hero" onClick={confirmAssign}>Confirm Assignment</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

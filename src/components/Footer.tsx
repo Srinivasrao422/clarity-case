@@ -63,6 +63,14 @@ export const Footer = () => {
         </div>
       </div>
 
+      <div className="border-t border-border bg-accent/20">
+        <div className="container py-3 text-[11px] text-muted-foreground text-center">
+          🔒 SPCAES is an end-to-end encrypted government grievance platform. Your data is processed under the IT Act, 2000 and the DPDP Act, 2023. Read our{" "}
+          <a href="#" className="text-primary underline">Privacy Policy</a> and{" "}
+          <a href="#" className="text-primary underline">Terms of Service</a>.
+        </div>
+      </div>
+
       <div className="border-t border-border">
         <div className="container py-4 text-xs text-muted-foreground flex flex-col sm:flex-row justify-between gap-2">
           <p>© {new Date().getFullYear()} SPCAES. All rights reserved.</p>

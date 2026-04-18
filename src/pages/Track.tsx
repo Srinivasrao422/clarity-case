@@ -16,8 +16,20 @@ import {
   Edit3,
   Download,
   Printer,
+  Building2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { SLABadge } from "@/components/SLABadge";
+import { FeedbackDialog } from "@/components/FeedbackDialog";
+import { AuditLog, type AuditEntry } from "@/components/AuditLog";
+
+const auditEntries: AuditEntry[] = [
+  { type: "created", actor: "Aarav Sharma", role: "Citizen", time: "Mar 12, 10:32 AM", note: "Complaint filed via web portal." },
+  { type: "assigned", actor: "System", role: "Auto", time: "Mar 12, 10:33 AM", note: "Routed to Crime Branch — SI R. Verma." },
+  { type: "viewed", actor: "SI R. Verma", role: "Officer", time: "Mar 12, 11:48 AM" },
+  { type: "updated", actor: "SI R. Verma", role: "Officer", time: "Mar 14, 09:00 AM", note: "Status: Under Investigation." },
+  { type: "escalated", actor: "System", role: "Auto", time: "Mar 18, 11:00 AM", note: "Escalated to ACP — SLA breached." },
+];
 
 const timeline = [
   {
@@ -139,10 +151,11 @@ const Track = () => {
                     <div className="text-xs uppercase tracking-wider opacity-80">Complaint ID</div>
                     <div className="font-display text-2xl font-bold">SPC-2024-0892</div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="px-3 py-1.5 rounded-full bg-destructive text-destructive-foreground text-xs font-semibold flex items-center gap-1.5">
                       <AlertTriangle className="h-3.5 w-3.5" /> Auto-Escalated
                     </span>
+                    <SLABadge hoursLeft={-12} className="bg-white/90" />
                   </div>
                 </div>
                 <h2 className="font-display text-xl font-semibold mt-4">Vehicle theft near MG Road</h2>
@@ -179,9 +192,10 @@ const Track = () => {
                 </div>
               </div>
 
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 p-6">
                 {[
                   { icon: Calendar, label: "Filed", value: "Mar 12, 2024" },
+                  { icon: Building2, label: "Department", value: "Crime Branch" },
                   { icon: MapPin, label: "Station", value: "MG Road" },
                   { icon: User, label: "Officer", value: "SI R. Verma" },
                   { icon: Phone, label: "Contact", value: "+91 80-XXXX-XX" },
@@ -229,6 +243,20 @@ const Track = () => {
                   );
                 })}
               </ol>
+            </div>
+
+            {/* Audit log */}
+            <AuditLog entries={auditEntries} />
+
+            {/* Feedback section */}
+            <div className="rounded-2xl border border-border bg-card p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="font-display font-semibold text-sm">Rate this resolution</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Your feedback helps us improve service quality and accountability.
+                </p>
+              </div>
+              <FeedbackDialog complaintId="SPC-2024-0892" />
             </div>
           </div>
         )}
