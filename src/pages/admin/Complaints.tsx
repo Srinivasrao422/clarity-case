@@ -225,6 +225,33 @@ const Complaints = () => {
           </table>
         </div>
       </div>
+
+      <Dialog open={!!assignFor} onOpenChange={(o) => !o && setAssignFor(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign / Reassign Officer</DialogTitle>
+            <DialogDescription>
+              Select an officer to handle complaint {assignFor}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <Select value={chosenOfficer} onValueChange={setChosenOfficer}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {officers.map((o) => (
+                  <SelectItem key={o} value={o}>{o}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAssignFor(null)}>Cancel</Button>
+            <Button variant="hero" onClick={confirmAssign}>Confirm Assignment</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
