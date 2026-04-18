@@ -15,6 +15,7 @@ import {
   Percent,
   ShieldAlert,
 } from "lucide-react";
+import { PublicNotices } from "@/components/PublicNotices";
 
 const summary = [
   { label: "Total Complaints", value: 12, icon: FileText, color: "text-primary", bg: "bg-primary/10", trend: "+2 this month" },
@@ -184,6 +185,11 @@ const Dashboard = () => {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Public notices */}
+      <div className="mt-6">
+        <PublicNotices />
       </div>
     </div>
   );
