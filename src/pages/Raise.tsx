@@ -423,6 +423,23 @@ Keep this receipt for tracking and reference.
                   </div>
                 </div>
               )}
+
+              {routedDept && (
+                <div className="rounded-xl border border-secondary/20 bg-secondary/5 p-4 flex items-start gap-3 animate-fade-in">
+                  <div className="h-9 w-9 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
+                    <Building2 className="h-4 w-4 text-secondary" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-secondary">
+                      Auto-routed to department
+                    </div>
+                    <div className="text-sm font-medium mt-0.5">{routedDept.department}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      Default SLA: {routedDept.sla}h · Likely officer: {routedDept.officer}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -508,12 +525,39 @@ Keep this receipt for tracking and reference.
                 ))}
               </div>
 
+              {routedDept && (
+                <div className="rounded-xl border border-border bg-accent/30 p-4 grid sm:grid-cols-3 gap-3 text-xs">
+                  <div>
+                    <div className="text-muted-foreground uppercase tracking-wider">Department</div>
+                    <div className="font-medium text-sm mt-0.5">{routedDept.department}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground uppercase tracking-wider">SLA</div>
+                    <div className="font-medium text-sm mt-0.5">{routedDept.sla} hours</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground uppercase tracking-wider">Officer</div>
+                    <div className="font-medium text-sm mt-0.5">{routedDept.officer}</div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-start gap-3 p-4 rounded-xl bg-warning/10 border border-warning/20">
                 <AlertTriangle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
                 <p className="text-sm text-foreground">
                   By submitting, you confirm that all information provided is true. False complaints are punishable by law.
                 </p>
               </div>
+
+              <label className="flex items-start gap-3 p-4 rounded-xl border border-border bg-card cursor-pointer hover:bg-accent/30 transition-colors">
+                <Checkbox checked={consent} onCheckedChange={(v) => setConsent(!!v)} className="mt-0.5" />
+                <div className="text-sm">
+                  <div className="font-medium">Privacy & Truthfulness Declaration</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    I consent to SPCAES processing my data for complaint resolution under the IT Act, 2000 and confirm the information is true to the best of my knowledge.
+                  </p>
+                </div>
+              </label>
             </div>
           )}
 
