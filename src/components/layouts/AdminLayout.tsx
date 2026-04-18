@@ -17,6 +17,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NotificationBell } from "@/components/NotificationBell";
+import { ConsentNotice } from "@/components/ConsentNotice";
 import { toast } from "sonner";
 
 const adminNotifications = [
@@ -157,6 +158,7 @@ export const AdminLayout = () => {
           <Outlet />
         </main>
       </div>
+      <ConsentNotice />
     </div>
   );
 };
