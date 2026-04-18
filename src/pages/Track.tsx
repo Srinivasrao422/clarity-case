@@ -12,11 +12,16 @@ import {
   User,
   Phone,
   Inbox,
+  Eye,
+  Edit3,
+  Download,
+  Printer,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const timeline = [
   {
-    status: "Submitted",
+    status: "Created",
     date: "Mar 12, 2024 · 10:32 AM",
     desc: "Complaint received and logged in system.",
     icon: FileText,
@@ -24,18 +29,18 @@ const timeline = [
     color: "primary",
   },
   {
-    status: "Under Review",
-    date: "Mar 12, 2024 · 02:15 PM",
-    desc: "Assigned to Sub-Inspector R. Verma at MG Road Station.",
-    icon: User,
+    status: "Viewed by Officer",
+    date: "Mar 12, 2024 · 11:48 AM",
+    desc: "SI R. Verma at MG Road Station opened the case file.",
+    icon: Eye,
     done: true,
     color: "primary",
   },
   {
-    status: "In Progress",
+    status: "Updated — Under Investigation",
     date: "Mar 14, 2024 · 09:00 AM",
     desc: "Investigation initiated. Witness statements being recorded.",
-    icon: Clock,
+    icon: Edit3,
     done: true,
     color: "warning",
   },
@@ -134,11 +139,30 @@ const Track = () => {
                     <div className="text-xs uppercase tracking-wider opacity-80">Complaint ID</div>
                     <div className="font-display text-2xl font-bold">SPC-2024-0892</div>
                   </div>
-                  <span className="px-3 py-1.5 rounded-full bg-destructive text-destructive-foreground text-xs font-semibold flex items-center gap-1.5">
-                    <AlertTriangle className="h-3.5 w-3.5" /> Auto-Escalated
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1.5 rounded-full bg-destructive text-destructive-foreground text-xs font-semibold flex items-center gap-1.5">
+                      <AlertTriangle className="h-3.5 w-3.5" /> Auto-Escalated
+                    </span>
+                  </div>
                 </div>
                 <h2 className="font-display text-xl font-semibold mt-4">Vehicle theft near MG Road</h2>
+
+                <div className="flex flex-wrap gap-2 mt-4">
+                  <Button
+                    size="sm"
+                    variant="soft"
+                    onClick={() => toast.success("Complaint downloaded as PDF")}
+                  >
+                    <Download className="h-3.5 w-3.5 mr-1" /> Download PDF
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="soft"
+                    onClick={() => window.print()}
+                  >
+                    <Printer className="h-3.5 w-3.5 mr-1" /> Print
+                  </Button>
+                </div>
 
                 {/* Progress bar */}
                 <div className="mt-5">

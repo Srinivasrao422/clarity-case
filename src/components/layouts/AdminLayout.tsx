@@ -6,7 +6,6 @@ import {
   AlertTriangle,
   Users,
   BarChart3,
-  Bell,
   LogOut,
   Menu,
   X,
@@ -17,7 +16,15 @@ import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NotificationBell } from "@/components/NotificationBell";
 import { toast } from "sonner";
+
+const adminNotifications = [
+  { id: "a1", title: "SLA breach", desc: "SPC-2024-0892 escalated to ACP after 4 days.", time: "10m ago", type: "escalation" as const },
+  { id: "a2", title: "New complaint", desc: "Cyber fraud filed by Priya Mehta.", time: "1h ago", type: "new" as const },
+  { id: "a3", title: "Resolved", desc: "SI Verma marked SPC-2024-0876 resolved.", time: "3h ago", type: "resolved" as const },
+  { id: "a4", title: "Status update", desc: "SPC-2024-0889 reassigned to HSR Layout.", time: "5h ago", type: "update" as const },
+];
 
 const navItems = [
   { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -138,10 +145,7 @@ export const AdminLayout = () => {
               </div>
             </div>
 
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-4 w-4" />
-              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive" />
-            </Button>
+            <NotificationBell notifications={adminNotifications} />
             <ThemeToggle />
             <div className="hidden sm:flex h-9 w-9 rounded-full gradient-primary items-center justify-center font-semibold text-xs text-primary-foreground">
               RK

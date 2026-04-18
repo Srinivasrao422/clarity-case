@@ -10,6 +10,10 @@ import {
   Bot,
   TrendingUp,
   ArrowUpRight,
+  Activity,
+  Timer,
+  Percent,
+  ShieldAlert,
 } from "lucide-react";
 
 const summary = [
@@ -146,6 +150,39 @@ const Dashboard = () => {
             <h3 className="font-display font-semibold text-lg">Track Complaint</h3>
             <p className="text-sm text-muted-foreground mt-1">Check status with your complaint ID.</p>
           </Link>
+        </div>
+      </div>
+
+      {/* Crime insights widget */}
+      <div className="mt-6 rounded-2xl border border-border bg-card p-5 animate-fade-in-up">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-display font-semibold flex items-center gap-2">
+              <ShieldAlert className="h-4 w-4 text-primary" /> Crime Insights — Your Area
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Bengaluru · Last 30 days</p>
+          </div>
+          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-success/10 text-success border border-success/20">
+            Safer than 62% areas
+          </span>
+        </div>
+        <div className="grid sm:grid-cols-4 gap-3">
+          {[
+            { label: "Theft", value: 38, color: "bg-destructive" },
+            { label: "Cyber Fraud", value: 27, color: "bg-warning" },
+            { label: "Vehicle", value: 18, color: "bg-primary" },
+            { label: "Other", value: 17, color: "bg-secondary" },
+          ].map((c) => (
+            <div key={c.label} className="rounded-xl border border-border p-3">
+              <div className="flex justify-between text-xs mb-2">
+                <span className="font-medium">{c.label}</span>
+                <span className="text-muted-foreground">{c.value}%</span>
+              </div>
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                <div className={`h-full ${c.color} rounded-full`} style={{ width: `${c.value}%` }} />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

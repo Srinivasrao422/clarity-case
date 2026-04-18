@@ -9,12 +9,22 @@ import {
   LogOut,
   Menu,
   X,
-  Bell,
+  Scale,
+  BookOpen,
+  Users as UsersIcon,
+  ChevronDown,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
+import { NotificationBell } from "@/components/NotificationBell";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 
 const items = [
@@ -23,6 +33,12 @@ const items = [
   { to: "/citizen/track", label: "Track", icon: Search },
   { to: "/citizen/assistant", label: "AI Assistant", icon: Bot },
   { to: "/citizen/profile", label: "Profile", icon: UserCircle },
+];
+
+const legalItems = [
+  { to: "/citizen/laws", label: "Laws Explorer", icon: Scale, desc: "Search IPC, IT Act & more" },
+  { to: "/citizen/legal-awareness", label: "Legal Awareness", icon: BookOpen, desc: "Know your rights" },
+  { to: "/citizen/advocates", label: "Advocate Directory", icon: UsersIcon, desc: "Verified legal experts" },
 ];
 
 export const CitizenLayout = () => {
@@ -34,6 +50,8 @@ export const CitizenLayout = () => {
     toast.success("Signed out");
     setTimeout(() => navigate("/"), 300);
   };
+
+  const legalActive = legalItems.some((l) => pathname === l.to);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -64,13 +82,43 @@ export const CitizenLayout = () => {
                 </Link>
               );
             })}
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    legalActive
+                      ? "text-secondary bg-secondary/10"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                  }`}
+                >
+                  <Scale className="h-4 w-4" />
+                  Legal Help
+                  <ChevronDown className="h-3 w-3 opacity-70" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                {legalItems.map((l) => (
+                  <DropdownMenuItem key={l.to} asChild>
+                    <Link to={l.to} className="flex items-start gap-3 py-2">
+                      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <l.icon className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium">{l.label}</div>
+                        <div className="text-xs text-muted-foreground">{l.desc}</div>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="relative hidden sm:inline-flex">
-              <Bell className="h-4 w-4" />
-              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive" />
-            </Button>
+            <div className="hidden sm:inline-flex">
+              <NotificationBell />
+            </div>
             <ThemeToggle />
             <Button variant="ghost" size="sm" onClick={logout} className="hidden sm:inline-flex">
               <LogOut className="h-4 w-4 mr-1" /> Logout
@@ -105,6 +153,26 @@ export const CitizenLayout = () => {
                   {item.label}
                 </Link>
               ))}
+              <div className="mt-2 pt-2 border-t border-border">
+                <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Legal Help
+                </div>
+                {legalItems.map((l) => (
+                  <Link
+                    key={l.to}
+                    to={l.to}
+                    onClick={() => setOpen(false)}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium ${
+                      pathname === l.to
+                        ? "bg-secondary/10 text-secondary"
+                        : "text-muted-foreground hover:bg-accent/60"
+                    }`}
+                  >
+                    <l.icon className="h-4 w-4" />
+                    {l.label}
+                  </Link>
+                ))}
+              </div>
               <Button variant="outline" className="mt-2" onClick={logout}>
                 <LogOut className="h-4 w-4 mr-1" /> Logout
               </Button>

@@ -15,6 +15,9 @@ import Raise from "./pages/Raise.tsx";
 import Track from "./pages/Track.tsx";
 import Assistant from "./pages/Assistant.tsx";
 import Profile from "./pages/citizen/Profile.tsx";
+import LawsExplorer from "./pages/citizen/LawsExplorer.tsx";
+import LegalAwareness from "./pages/citizen/LegalAwareness.tsx";
+import Advocates from "./pages/citizen/Advocates.tsx";
 
 import { AdminLayout } from "./components/layouts/AdminLayout.tsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
@@ -46,6 +49,9 @@ const App = () => (
             <Route path="track" element={<Track />} />
             <Route path="assistant" element={<Assistant />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="laws" element={<LawsExplorer />} />
+            <Route path="legal-awareness" element={<LegalAwareness />} />
+            <Route path="advocates" element={<Advocates />} />
           </Route>
 
           {/* Admin Portal */}
