@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Filter, MoreVertical, Eye, UserPlus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Filter, MoreVertical, Eye, UserPlus, Search } from "lucide-react";
 import { toast } from "sonner";
 
 const complaints = [
@@ -29,9 +30,21 @@ const priorityStyles: Record<string, string> = {
 const Complaints = () => {
   const [filter, setFilter] = useState("All");
   const [category, setCategory] = useState("All");
+  const [query, setQuery] = useState("");
 
   const filtered = complaints.filter((c) => {
-    return (filter === "All" || c.status === filter) && (category === "All" || c.category === category);
+    const q = query.toLowerCase();
+    const matchesQuery =
+      !q ||
+      c.id.toLowerCase().includes(q) ||
+      c.citizen.toLowerCase().includes(q) ||
+      c.category.toLowerCase().includes(q) ||
+      c.station.toLowerCase().includes(q);
+    return (
+      (filter === "All" || c.status === filter) &&
+      (category === "All" || c.category === category) &&
+      matchesQuery
+    );
   });
 
   const updateStatus = (id: string) => toast.success(`${id} status updated`);
@@ -48,6 +61,15 @@ const Complaints = () => {
 
       <div className="rounded-2xl border border-border bg-card animate-fade-in-up">
         <div className="p-5 border-b border-border space-y-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by ID, citizen, category or station..."
+              className="pl-9"
+            />
+          </div>
           <div className="flex flex-wrap gap-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground self-center mr-2">
               Status:

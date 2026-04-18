@@ -53,6 +53,22 @@ const ChartBars = () => {
 const AdminDashboard = () => {
   return (
     <div className="space-y-6">
+      {/* Escalation alert banner */}
+      <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4 flex flex-col sm:flex-row sm:items-center gap-3 animate-fade-in">
+        <div className="h-10 w-10 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0">
+          <AlertTriangle className="h-5 w-5 text-destructive" />
+        </div>
+        <div className="flex-1">
+          <div className="font-medium text-sm">3 complaints breached SLA in the last 24h</div>
+          <div className="text-xs text-muted-foreground mt-0.5">
+            Auto-escalation triggered — review pending cases to avoid further breaches.
+          </div>
+        </div>
+        <Button asChild variant="outline" size="sm" className="border-destructive/30 text-destructive hover:bg-destructive/10">
+          <Link to="/admin/escalations">Review escalations</Link>
+        </Button>
+      </div>
+
       {/* Stats */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s, i) => (
