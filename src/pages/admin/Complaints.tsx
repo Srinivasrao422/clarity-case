@@ -152,10 +152,10 @@ const Complaints = () => {
                 <th className="text-left font-medium py-3 px-5">ID</th>
                 <th className="text-left font-medium py-3 px-5">Citizen</th>
                 <th className="text-left font-medium py-3 px-5 hidden md:table-cell">Category</th>
-                <th className="text-left font-medium py-3 px-5 hidden lg:table-cell">Station</th>
+                <th className="text-left font-medium py-3 px-5 hidden lg:table-cell">Officer</th>
                 <th className="text-left font-medium py-3 px-5">Priority</th>
+                <th className="text-left font-medium py-3 px-5">SLA</th>
                 <th className="text-left font-medium py-3 px-5">Status</th>
-                <th className="text-left font-medium py-3 px-5 hidden md:table-cell">Date</th>
                 <th className="text-right font-medium py-3 px-5">Actions</th>
               </tr>
             </thead>
@@ -172,24 +172,36 @@ const Complaints = () => {
                     </div>
                   </td>
                   <td className="py-3 px-5 hidden md:table-cell text-muted-foreground">{c.category}</td>
-                  <td className="py-3 px-5 hidden lg:table-cell text-muted-foreground">{c.station}</td>
+                  <td className="py-3 px-5 hidden lg:table-cell">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-xs ${c.officer === "Unassigned" ? "text-destructive italic" : "text-muted-foreground"}`}>
+                        {c.officer}
+                      </span>
+                    </div>
+                  </td>
                   <td className="py-3 px-5">
                     <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${priorityStyles[c.priority]}`}>
                       {c.priority}
                     </span>
                   </td>
                   <td className="py-3 px-5">
+                    {c.status === "Resolved" ? (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    ) : (
+                      <SLABadge hoursLeft={c.slaHours} />
+                    )}
+                  </td>
+                  <td className="py-3 px-5">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${statusStyles[c.status]}`}>
                       {c.status}
                     </span>
                   </td>
-                  <td className="py-3 px-5 hidden md:table-cell text-muted-foreground text-xs">{c.date}</td>
                   <td className="py-3 px-5 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button size="sm" variant="ghost" className="h-8" onClick={() => toast(`Viewing ${c.id}`)}>
                         <Eye className="h-3.5 w-3.5" />
                       </Button>
-                      <Button size="sm" variant="ghost" className="h-8" onClick={() => assignOfficer(c.id)}>
+                      <Button size="sm" variant="ghost" className="h-8" onClick={() => openAssign(c.id)}>
                         <UserPlus className="h-3.5 w-3.5" />
                       </Button>
                       <Button size="sm" variant="outline" className="h-8" onClick={() => updateStatus(c.id)}>
