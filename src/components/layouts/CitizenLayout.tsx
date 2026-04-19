@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ConsentNotice } from "@/components/ConsentNotice";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -120,6 +121,7 @@ export const CitizenLayout = () => {
             <div className="hidden sm:inline-flex">
               <NotificationBell />
             </div>
+            <LanguageSwitcher />
             <ThemeToggle />
             <Button variant="ghost" size="sm" onClick={logout} className="hidden sm:inline-flex">
               <LogOut className="h-4 w-4 mr-1" /> Logout
