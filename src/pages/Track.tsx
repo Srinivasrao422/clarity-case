@@ -192,9 +192,10 @@ const Track = () => {
                 </div>
               </div>
 
-              <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 p-6">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
                 {[
-                  { icon: Calendar, label: "Filed", value: "Mar 12, 2024" },
+                  { icon: Calendar, label: "Created", value: "Mar 12, 2024 · 10:32 AM" },
+                  { icon: Clock, label: "Last updated", value: "Mar 18, 2024 · 11:00 AM" },
                   { icon: Building2, label: "Department", value: "Crime Branch" },
                   { icon: MapPin, label: "Station", value: "MG Road" },
                   { icon: User, label: "Officer", value: "SI R. Verma" },
@@ -211,6 +212,53 @@ const Track = () => {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Officer remarks */}
+            <div className="rounded-2xl border border-border bg-card p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="font-display font-semibold text-lg">Officer Remarks</h3>
+                  <p className="text-xs text-muted-foreground">Comments and updates from the assigned officer</p>
+                </div>
+                <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+                  2 remarks
+                </span>
+              </div>
+              <ol className="space-y-3">
+                {[
+                  {
+                    officer: "SI R. Verma",
+                    role: "Investigating Officer",
+                    time: "Mar 14, 2024 · 09:00 AM",
+                    note:
+                      "Visited the incident location, recorded statements from 2 witnesses. CCTV footage from nearby ATM has been requisitioned.",
+                  },
+                  {
+                    officer: "ACP S. Iyer",
+                    role: "Senior Officer",
+                    time: "Mar 18, 2024 · 11:15 AM",
+                    note:
+                      "Reviewed file post auto-escalation. Directed SI Verma to coordinate with Cyber Cell for vehicle tracking. Update expected within 48 hours.",
+                  },
+                ].map((r, i) => (
+                  <li key={i} className="rounded-xl border border-border p-4 bg-accent/20">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-full gradient-primary flex items-center justify-center text-xs font-bold text-primary-foreground">
+                          {r.officer.split(" ").slice(-1)[0][0]}
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium">{r.officer}</div>
+                          <div className="text-[11px] text-muted-foreground">{r.role}</div>
+                        </div>
+                      </div>
+                      <span className="text-[11px] text-muted-foreground">{r.time}</span>
+                    </div>
+                    <p className="text-sm text-foreground/80 mt-3 leading-relaxed">{r.note}</p>
+                  </li>
+                ))}
+              </ol>
             </div>
 
             {/* Timeline */}

@@ -45,6 +45,12 @@ import {
   BadgeCheck,
   Gavel,
   FileSignature,
+  MapPin,
+  Image as ImageIcon,
+  Video,
+  File as FileIcon,
+  Save,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getDepartment } from "@/lib/departments";
@@ -53,6 +59,9 @@ import { detectPriority, findDuplicates, maskId, type Priority } from "@/lib/sma
 import { useSpeechToText } from "@/hooks/use-speech-to-text";
 import { useI18n, type Lang } from "@/lib/i18n";
 import { generateFIRDraft, type FIRData } from "@/lib/firPdf";
+import { SignaturePad } from "@/components/SignaturePad";
+import { SeverityBadge } from "@/components/SeverityBadge";
+import { EditWindowTimer } from "@/components/EditWindowTimer";
 
 const categories = [
   { id: "theft", label: "Theft / Robbery", icon: ShieldAlert, color: "text-destructive", bg: "bg-destructive/10" },
@@ -125,6 +134,23 @@ interface WitnessEntry {
   statement: string;
 }
 
+type EvidenceTag = "Image" | "Video" | "Document";
+
+interface TaggedFile {
+  file: File;
+  tag: EvidenceTag;
+}
+
+const guessTag = (f: File): EvidenceTag => {
+  if (f.type.startsWith("image/")) return "Image";
+  if (f.type.startsWith("video/")) return "Video";
+  return "Document";
+};
+
+const DRAFT_KEY = "spcaes.draft.v1";
+const MAX_PHOTO_BYTES = 2 * 1024 * 1024; // 2 MB
+const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
 const Raise = () => {
   const navigate = useNavigate();
   const { t, lang } = useI18n();
@@ -139,6 +165,7 @@ const Raise = () => {
     idNumber: "",
     photoName: "",
   });
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [otpVerified, setOtpVerified] = useState(false);
@@ -149,10 +176,11 @@ const Raise = () => {
     description: "",
     location: "",
     category: "",
-    files: [] as File[],
+    files: [] as TaggedFile[],
   });
   const [drag, setDrag] = useState(false);
   const [aiSuggested, setAiSuggested] = useState<string | null>(null);
+  const [locating, setLocating] = useState(false);
 
   // Parties
   const [accused, setAccused] = useState<AccusedEntry[]>([
@@ -161,12 +189,15 @@ const Raise = () => {
   const [witnesses, setWitnesses] = useState<WitnessEntry[]>([]);
 
   const [consent, setConsent] = useState(false);
+  const [signature, setSignature] = useState<string | null>(null);
+  const [createdAt] = useState(() => new Date().toISOString());
   const [receipt, setReceipt] = useState<null | {
     id: string;
     dept: string;
     sla: number;
     officer: string;
     ts: string;
+    tsEpoch: number;
     priority: Priority;
   }>(null);
 
@@ -203,8 +234,96 @@ const Raise = () => {
 
   const handleFiles = (files: FileList | null) => {
     if (!files) return;
-    setForm({ ...form, files: [...form.files, ...Array.from(files)] });
+    const tagged: TaggedFile[] = Array.from(files).map((f) => ({ file: f, tag: guessTag(f) }));
+    setForm({ ...form, files: [...form.files, ...tagged] });
   };
+
+  const setFileTag = (i: number, tag: EvidenceTag) =>
+    setForm((f) => ({ ...f, files: f.files.map((tf, idx) => (idx === i ? { ...tf, tag } : tf)) }));
+
+  const handlePhoto = (file?: File) => {
+    if (!file) return;
+    if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
+      toast.error("Photo must be JPG, PNG or WebP");
+      return;
+    }
+    if (file.size > MAX_PHOTO_BYTES) {
+      toast.error("Photo must be under 2 MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setPhotoPreview(reader.result as string);
+    reader.readAsDataURL(file);
+    setVictim((v) => ({ ...v, photoName: file.name }));
+    toast.success("Photo uploaded");
+  };
+
+  const detectLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation not supported by this browser");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setForm((f) => ({
+          ...f,
+          location: `Lat ${latitude.toFixed(5)}, Lng ${longitude.toFixed(5)}`,
+        }));
+        setLocating(false);
+        toast.success("Location captured — you can edit it manually");
+      },
+      () => {
+        setLocating(false);
+        toast.error("Unable to capture location");
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  };
+
+  const saveDraft = () => {
+    const data = {
+      victim: { ...victim },
+      form: { ...form, files: [] }, // skip File objects
+      accused,
+      witnesses,
+      step,
+      savedAt: new Date().toISOString(),
+    };
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+      toast.success("Draft saved locally");
+    } catch {
+      toast.error("Unable to save draft");
+    }
+  };
+
+  const loadDraft = () => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) {
+        toast.info("No saved draft found");
+        return;
+      }
+      const d = JSON.parse(raw);
+      if (d.victim) setVictim(d.victim);
+      if (d.form) setForm({ ...d.form, files: [] });
+      if (d.accused) setAccused(d.accused);
+      if (d.witnesses) setWitnesses(d.witnesses);
+      if (d.step) setStep(d.step);
+      toast.success(`Draft restored (saved ${new Date(d.savedAt).toLocaleString()})`);
+    } catch {
+      toast.error("Unable to load draft");
+    }
+  };
+
+  const clearDraft = () => {
+    localStorage.removeItem(DRAFT_KEY);
+    toast.success("Draft cleared");
+  };
+
+  const hasDraft = typeof window !== "undefined" && !!localStorage.getItem(DRAFT_KEY);
 
   const applyTemplate = (tpl: (typeof templates)[number]) => {
     setForm((f) => ({ ...f, title: tpl.title, description: tpl.description, category: tpl.category }));
@@ -256,14 +375,18 @@ const Raise = () => {
     }
     const dept = getDepartment(form.category);
     const id = `SPC-2024-${Math.floor(900 + Math.random() * 99)}`;
+    const nowD = new Date();
     setReceipt({
       id,
       dept: dept.department,
       sla: dept.sla,
       officer: dept.officer,
-      ts: new Date().toLocaleString(),
+      ts: nowD.toLocaleString(),
+      tsEpoch: nowD.getTime(),
       priority,
     });
+    // Clear the saved draft once submitted
+    localStorage.removeItem(DRAFT_KEY);
     toast.success(`Complaint registered · ${id}`);
   };
 
@@ -392,6 +515,15 @@ ${LEGAL_DISCLAIMER}
                 }`}>{receipt.priority}</div>
               </div>
             </div>
+
+            <SeverityBadge priority={receipt.priority} className="mx-auto" />
+
+            <EditWindowTimer
+              startedAt={receipt.tsEpoch}
+              windowMinutes={15}
+              onEdit={() => setReceipt(null)}
+            />
+
             <div className="flex flex-col sm:flex-row gap-2 pt-2">
               <Button variant="hero" onClick={downloadFIRPdf} className="flex-1">
                 <FileSignature className="h-4 w-4 mr-1" /> {t("raise.firDraft")}
@@ -417,9 +549,29 @@ ${LEGAL_DISCLAIMER}
   // ============================================================
   return (
     <div className="container py-10 max-w-4xl">
-      <div className="mb-8 animate-fade-in">
-        <h1 className="font-display text-3xl sm:text-4xl font-bold">{t("raise.title")}</h1>
-        <p className="text-muted-foreground mt-2">{t("raise.subtitle")}</p>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3 animate-fade-in">
+        <div>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold">{t("raise.title")}</h1>
+          <p className="text-muted-foreground mt-2">{t("raise.subtitle")}</p>
+          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+            <Clock className="h-3 w-3" /> Started at {new Date(createdAt).toLocaleString()}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {hasDraft && (
+            <Button variant="outline" size="sm" onClick={loadDraft}>
+              Restore draft
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={saveDraft}>
+            <Save className="h-3.5 w-3.5 mr-1" /> Save draft
+          </Button>
+          {hasDraft && (
+            <Button variant="ghost" size="sm" onClick={clearDraft} aria-label="Clear draft">
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Stepper */}
@@ -534,24 +686,69 @@ ${LEGAL_DISCLAIMER}
               </div>
 
               <div className="sm:col-span-2">
-                <Label>{t("raise.photo")} <span className="text-muted-foreground text-xs">({t("common.optional")})</span></Label>
-                <label className="mt-1.5 flex items-center gap-3 p-3 rounded-lg border border-dashed border-border hover:border-primary cursor-pointer transition-colors">
-                  <Camera className="h-5 w-5 text-primary" />
-                  <span className="text-sm text-muted-foreground flex-1">
-                    {victim.photoName || "Upload your photo (JPG/PNG)"}
-                  </span>
-                  <input type="file" accept="image/*" className="hidden"
-                    onChange={(e) => setVictim({ ...victim, photoName: e.target.files?.[0]?.name || "" })} />
-                </label>
+                <Label>
+                  {t("raise.photo")} <span className="text-muted-foreground text-xs">(passport-size, max 2 MB)</span>
+                </Label>
+                <div className="mt-1.5 flex items-start gap-3">
+                  {photoPreview ? (
+                    <div className="relative shrink-0">
+                      <img
+                        src={photoPreview}
+                        alt="Victim preview"
+                        className="h-24 w-20 object-cover rounded-lg border border-border"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => { setPhotoPreview(null); setVictim({ ...victim, photoName: "" }); }}
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-soft"
+                        aria-label="Remove photo"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="h-24 w-20 rounded-lg border border-dashed border-border bg-muted/40 flex items-center justify-center shrink-0">
+                      <Camera className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                  )}
+                  <label className="flex-1 flex items-center gap-3 p-3 rounded-lg border border-dashed border-border hover:border-primary cursor-pointer transition-colors">
+                    <Upload className="h-5 w-5 text-primary" />
+                    <span className="text-sm text-muted-foreground flex-1 truncate">
+                      {victim.photoName || "Click to upload (JPG, PNG, WebP — max 2 MB)"}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={(e) => handlePhoto(e.target.files?.[0])}
+                    />
+                  </label>
+                </div>
               </div>
             </div>
 
-            {otpVerified && (
-              <div className="rounded-lg border border-success/30 bg-success/5 p-3 flex items-center gap-2 animate-fade-in">
-                <BadgeCheck className="h-4 w-4 text-success" />
-                <span className="text-sm">Identity verified. You may proceed.</span>
-              </div>
-            )}
+            {/* Verification status indicator */}
+            <div
+              className={`rounded-lg border p-3 flex items-center gap-2 ${
+                otpVerified
+                  ? "border-success/30 bg-success/5"
+                  : "border-warning/30 bg-warning/5"
+              }`}
+            >
+              {otpVerified ? (
+                <>
+                  <BadgeCheck className="h-4 w-4 text-success" />
+                  <span className="text-sm font-medium text-success">Identity Verified</span>
+                  <span className="text-xs text-muted-foreground ml-auto">Mobile + ID confirmed</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="h-4 w-4 text-warning" />
+                  <span className="text-sm font-medium text-warning">Not Verified</span>
+                  <span className="text-xs text-muted-foreground ml-auto">Complete OTP to verify</span>
+                </>
+              )}
+            </div>
           </div>
         )}
 
@@ -656,9 +853,18 @@ ${LEGAL_DISCLAIMER}
 
             <div>
               <Label htmlFor="location">Location of incident *</Label>
-              <Input id="location" className="mt-1.5"
-                placeholder="Address, landmark or coordinates"
-                value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+              <div className="flex gap-2 mt-1.5">
+                <Input id="location" className="flex-1"
+                  placeholder="Address, landmark or coordinates"
+                  value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+                <Button type="button" variant="outline" onClick={detectLocation} disabled={locating}>
+                  <MapPin className="h-3.5 w-3.5 mr-1" />
+                  {locating ? "Detecting..." : "Auto-detect"}
+                </Button>
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                You can edit the auto-detected coordinates or replace them with a landmark.
+              </p>
             </div>
           </div>
         )}
@@ -838,19 +1044,30 @@ ${LEGAL_DISCLAIMER}
 
             {form.files.length > 0 && (
               <div className="space-y-2">
-                {form.files.map((f, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card animate-fade-in">
-                    <FileText className="h-4 w-4 text-primary shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">{f.name}</div>
-                      <div className="text-xs text-muted-foreground">{(f.size / 1024).toFixed(1)} KB</div>
+                {form.files.map((tf, i) => {
+                  const TagIcon = tf.tag === "Image" ? ImageIcon : tf.tag === "Video" ? Video : FileIcon;
+                  return (
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card animate-fade-in">
+                      <TagIcon className="h-4 w-4 text-primary shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate">{tf.file.name}</div>
+                        <div className="text-xs text-muted-foreground">{(tf.file.size / 1024).toFixed(1)} KB</div>
+                      </div>
+                      <Select value={tf.tag} onValueChange={(v) => setFileTag(i, v as EvidenceTag)}>
+                        <SelectTrigger className="h-8 w-28 text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Image">Image</SelectItem>
+                          <SelectItem value="Video">Video</SelectItem>
+                          <SelectItem value="Document">Document</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <button onClick={() => setForm({ ...form, files: form.files.filter((_, j) => j !== i) })}
+                        className="h-8 w-8 rounded-lg hover:bg-destructive/10 text-destructive flex items-center justify-center">
+                        <X className="h-4 w-4" />
+                      </button>
                     </div>
-                    <button onClick={() => setForm({ ...form, files: form.files.filter((_, j) => j !== i) })}
-                      className="h-8 w-8 rounded-lg hover:bg-destructive/10 text-destructive flex items-center justify-center">
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -916,6 +1133,16 @@ ${LEGAL_DISCLAIMER}
               </div>
             )}
 
+            <div className="flex items-center justify-between gap-3 p-4 rounded-xl bg-card border border-border">
+              <div>
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">Case severity</div>
+                <p className="text-xs text-muted-foreground mt-1 max-w-xs">
+                  Auto-assessed from incident description.
+                </p>
+              </div>
+              <SeverityBadge priority={priority} />
+            </div>
+
             <div className="flex items-start gap-3 p-4 rounded-xl bg-warning/10 border border-warning/20">
               <AlertTriangle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
               <p className="text-sm text-foreground">
@@ -926,12 +1153,19 @@ ${LEGAL_DISCLAIMER}
             <label className="flex items-start gap-3 p-4 rounded-xl border border-border bg-card cursor-pointer hover:bg-accent/30 transition-colors">
               <Checkbox checked={consent} onCheckedChange={(v) => setConsent(!!v)} className="mt-0.5" />
               <div className="text-sm">
-                <div className="font-medium">Privacy & Truthfulness Declaration</div>
+                <div className="font-medium">I confirm the information provided is true</div>
                 <p className="text-xs text-muted-foreground mt-1">
                   I consent to SPCAES processing my data for complaint resolution under the IT Act, 2000 and confirm the information is true to the best of my knowledge.
                 </p>
               </div>
             </label>
+
+            <SignaturePad onChange={setSignature} />
+            {signature && (
+              <p className="text-xs text-success flex items-center gap-1">
+                <BadgeCheck className="h-3 w-3" /> Digital signature captured
+              </p>
+            )}
           </div>
         )}
 
