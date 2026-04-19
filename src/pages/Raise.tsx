@@ -853,9 +853,18 @@ ${LEGAL_DISCLAIMER}
 
             <div>
               <Label htmlFor="location">Location of incident *</Label>
-              <Input id="location" className="mt-1.5"
-                placeholder="Address, landmark or coordinates"
-                value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+              <div className="flex gap-2 mt-1.5">
+                <Input id="location" className="flex-1"
+                  placeholder="Address, landmark or coordinates"
+                  value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+                <Button type="button" variant="outline" onClick={detectLocation} disabled={locating}>
+                  <MapPin className="h-3.5 w-3.5 mr-1" />
+                  {locating ? "Detecting..." : "Auto-detect"}
+                </Button>
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                You can edit the auto-detected coordinates or replace them with a landmark.
+              </p>
             </div>
           </div>
         )}
