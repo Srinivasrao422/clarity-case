@@ -234,8 +234,96 @@ const Raise = () => {
 
   const handleFiles = (files: FileList | null) => {
     if (!files) return;
-    setForm({ ...form, files: [...form.files, ...Array.from(files)] });
+    const tagged: TaggedFile[] = Array.from(files).map((f) => ({ file: f, tag: guessTag(f) }));
+    setForm({ ...form, files: [...form.files, ...tagged] });
   };
+
+  const setFileTag = (i: number, tag: EvidenceTag) =>
+    setForm((f) => ({ ...f, files: f.files.map((tf, idx) => (idx === i ? { ...tf, tag } : tf)) }));
+
+  const handlePhoto = (file?: File) => {
+    if (!file) return;
+    if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
+      toast.error("Photo must be JPG, PNG or WebP");
+      return;
+    }
+    if (file.size > MAX_PHOTO_BYTES) {
+      toast.error("Photo must be under 2 MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setPhotoPreview(reader.result as string);
+    reader.readAsDataURL(file);
+    setVictim((v) => ({ ...v, photoName: file.name }));
+    toast.success("Photo uploaded");
+  };
+
+  const detectLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation not supported by this browser");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setForm((f) => ({
+          ...f,
+          location: `Lat ${latitude.toFixed(5)}, Lng ${longitude.toFixed(5)}`,
+        }));
+        setLocating(false);
+        toast.success("Location captured — you can edit it manually");
+      },
+      () => {
+        setLocating(false);
+        toast.error("Unable to capture location");
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  };
+
+  const saveDraft = () => {
+    const data = {
+      victim: { ...victim },
+      form: { ...form, files: [] }, // skip File objects
+      accused,
+      witnesses,
+      step,
+      savedAt: new Date().toISOString(),
+    };
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+      toast.success("Draft saved locally");
+    } catch {
+      toast.error("Unable to save draft");
+    }
+  };
+
+  const loadDraft = () => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) {
+        toast.info("No saved draft found");
+        return;
+      }
+      const d = JSON.parse(raw);
+      if (d.victim) setVictim(d.victim);
+      if (d.form) setForm({ ...d.form, files: [] });
+      if (d.accused) setAccused(d.accused);
+      if (d.witnesses) setWitnesses(d.witnesses);
+      if (d.step) setStep(d.step);
+      toast.success(`Draft restored (saved ${new Date(d.savedAt).toLocaleString()})`);
+    } catch {
+      toast.error("Unable to load draft");
+    }
+  };
+
+  const clearDraft = () => {
+    localStorage.removeItem(DRAFT_KEY);
+    toast.success("Draft cleared");
+  };
+
+  const hasDraft = typeof window !== "undefined" && !!localStorage.getItem(DRAFT_KEY);
 
   const applyTemplate = (tpl: (typeof templates)[number]) => {
     setForm((f) => ({ ...f, title: tpl.title, description: tpl.description, category: tpl.category }));
