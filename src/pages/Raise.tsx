@@ -1133,6 +1133,16 @@ ${LEGAL_DISCLAIMER}
               </div>
             )}
 
+            <div className="flex items-center justify-between gap-3 p-4 rounded-xl bg-card border border-border">
+              <div>
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">Case severity</div>
+                <p className="text-xs text-muted-foreground mt-1 max-w-xs">
+                  Auto-assessed from incident description.
+                </p>
+              </div>
+              <SeverityBadge priority={priority} />
+            </div>
+
             <div className="flex items-start gap-3 p-4 rounded-xl bg-warning/10 border border-warning/20">
               <AlertTriangle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
               <p className="text-sm text-foreground">
@@ -1143,12 +1153,19 @@ ${LEGAL_DISCLAIMER}
             <label className="flex items-start gap-3 p-4 rounded-xl border border-border bg-card cursor-pointer hover:bg-accent/30 transition-colors">
               <Checkbox checked={consent} onCheckedChange={(v) => setConsent(!!v)} className="mt-0.5" />
               <div className="text-sm">
-                <div className="font-medium">Privacy & Truthfulness Declaration</div>
+                <div className="font-medium">I confirm the information provided is true</div>
                 <p className="text-xs text-muted-foreground mt-1">
                   I consent to SPCAES processing my data for complaint resolution under the IT Act, 2000 and confirm the information is true to the best of my knowledge.
                 </p>
               </div>
             </label>
+
+            <SignaturePad onChange={setSignature} />
+            {signature && (
+              <p className="text-xs text-success flex items-center gap-1">
+                <BadgeCheck className="h-3 w-3" /> Digital signature captured
+              </p>
+            )}
           </div>
         )}
 
