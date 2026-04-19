@@ -134,6 +134,23 @@ interface WitnessEntry {
   statement: string;
 }
 
+type EvidenceTag = "Image" | "Video" | "Document";
+
+interface TaggedFile {
+  file: File;
+  tag: EvidenceTag;
+}
+
+const guessTag = (f: File): EvidenceTag => {
+  if (f.type.startsWith("image/")) return "Image";
+  if (f.type.startsWith("video/")) return "Video";
+  return "Document";
+};
+
+const DRAFT_KEY = "spcaes.draft.v1";
+const MAX_PHOTO_BYTES = 2 * 1024 * 1024; // 2 MB
+const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
 const Raise = () => {
   const navigate = useNavigate();
   const { t, lang } = useI18n();
@@ -148,6 +165,7 @@ const Raise = () => {
     idNumber: "",
     photoName: "",
   });
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [otpVerified, setOtpVerified] = useState(false);
@@ -158,10 +176,11 @@ const Raise = () => {
     description: "",
     location: "",
     category: "",
-    files: [] as File[],
+    files: [] as TaggedFile[],
   });
   const [drag, setDrag] = useState(false);
   const [aiSuggested, setAiSuggested] = useState<string | null>(null);
+  const [locating, setLocating] = useState(false);
 
   // Parties
   const [accused, setAccused] = useState<AccusedEntry[]>([
@@ -170,12 +189,15 @@ const Raise = () => {
   const [witnesses, setWitnesses] = useState<WitnessEntry[]>([]);
 
   const [consent, setConsent] = useState(false);
+  const [signature, setSignature] = useState<string | null>(null);
+  const [createdAt] = useState(() => new Date().toISOString());
   const [receipt, setReceipt] = useState<null | {
     id: string;
     dept: string;
     sla: number;
     officer: string;
     ts: string;
+    tsEpoch: number;
     priority: Priority;
   }>(null);
 
