@@ -686,24 +686,69 @@ ${LEGAL_DISCLAIMER}
               </div>
 
               <div className="sm:col-span-2">
-                <Label>{t("raise.photo")} <span className="text-muted-foreground text-xs">({t("common.optional")})</span></Label>
-                <label className="mt-1.5 flex items-center gap-3 p-3 rounded-lg border border-dashed border-border hover:border-primary cursor-pointer transition-colors">
-                  <Camera className="h-5 w-5 text-primary" />
-                  <span className="text-sm text-muted-foreground flex-1">
-                    {victim.photoName || "Upload your photo (JPG/PNG)"}
-                  </span>
-                  <input type="file" accept="image/*" className="hidden"
-                    onChange={(e) => setVictim({ ...victim, photoName: e.target.files?.[0]?.name || "" })} />
-                </label>
+                <Label>
+                  {t("raise.photo")} <span className="text-muted-foreground text-xs">(passport-size, max 2 MB)</span>
+                </Label>
+                <div className="mt-1.5 flex items-start gap-3">
+                  {photoPreview ? (
+                    <div className="relative shrink-0">
+                      <img
+                        src={photoPreview}
+                        alt="Victim preview"
+                        className="h-24 w-20 object-cover rounded-lg border border-border"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => { setPhotoPreview(null); setVictim({ ...victim, photoName: "" }); }}
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-soft"
+                        aria-label="Remove photo"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="h-24 w-20 rounded-lg border border-dashed border-border bg-muted/40 flex items-center justify-center shrink-0">
+                      <Camera className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                  )}
+                  <label className="flex-1 flex items-center gap-3 p-3 rounded-lg border border-dashed border-border hover:border-primary cursor-pointer transition-colors">
+                    <Upload className="h-5 w-5 text-primary" />
+                    <span className="text-sm text-muted-foreground flex-1 truncate">
+                      {victim.photoName || "Click to upload (JPG, PNG, WebP — max 2 MB)"}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={(e) => handlePhoto(e.target.files?.[0])}
+                    />
+                  </label>
+                </div>
               </div>
             </div>
 
-            {otpVerified && (
-              <div className="rounded-lg border border-success/30 bg-success/5 p-3 flex items-center gap-2 animate-fade-in">
-                <BadgeCheck className="h-4 w-4 text-success" />
-                <span className="text-sm">Identity verified. You may proceed.</span>
-              </div>
-            )}
+            {/* Verification status indicator */}
+            <div
+              className={`rounded-lg border p-3 flex items-center gap-2 ${
+                otpVerified
+                  ? "border-success/30 bg-success/5"
+                  : "border-warning/30 bg-warning/5"
+              }`}
+            >
+              {otpVerified ? (
+                <>
+                  <BadgeCheck className="h-4 w-4 text-success" />
+                  <span className="text-sm font-medium text-success">Identity Verified</span>
+                  <span className="text-xs text-muted-foreground ml-auto">Mobile + ID confirmed</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="h-4 w-4 text-warning" />
+                  <span className="text-sm font-medium text-warning">Not Verified</span>
+                  <span className="text-xs text-muted-foreground ml-auto">Complete OTP to verify</span>
+                </>
+              )}
+            </div>
           </div>
         )}
 
