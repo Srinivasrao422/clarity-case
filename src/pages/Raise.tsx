@@ -375,14 +375,18 @@ const Raise = () => {
     }
     const dept = getDepartment(form.category);
     const id = `SPC-2024-${Math.floor(900 + Math.random() * 99)}`;
+    const nowD = new Date();
     setReceipt({
       id,
       dept: dept.department,
       sla: dept.sla,
       officer: dept.officer,
-      ts: new Date().toLocaleString(),
+      ts: nowD.toLocaleString(),
+      tsEpoch: nowD.getTime(),
       priority,
     });
+    // Clear the saved draft once submitted
+    localStorage.removeItem(DRAFT_KEY);
     toast.success(`Complaint registered · ${id}`);
   };
 
@@ -957,19 +961,30 @@ ${LEGAL_DISCLAIMER}
 
             {form.files.length > 0 && (
               <div className="space-y-2">
-                {form.files.map((f, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card animate-fade-in">
-                    <FileText className="h-4 w-4 text-primary shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">{f.name}</div>
-                      <div className="text-xs text-muted-foreground">{(f.size / 1024).toFixed(1)} KB</div>
+                {form.files.map((tf, i) => {
+                  const TagIcon = tf.tag === "Image" ? ImageIcon : tf.tag === "Video" ? Video : FileIcon;
+                  return (
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card animate-fade-in">
+                      <TagIcon className="h-4 w-4 text-primary shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate">{tf.file.name}</div>
+                        <div className="text-xs text-muted-foreground">{(tf.file.size / 1024).toFixed(1)} KB</div>
+                      </div>
+                      <Select value={tf.tag} onValueChange={(v) => setFileTag(i, v as EvidenceTag)}>
+                        <SelectTrigger className="h-8 w-28 text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Image">Image</SelectItem>
+                          <SelectItem value="Video">Video</SelectItem>
+                          <SelectItem value="Document">Document</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <button onClick={() => setForm({ ...form, files: form.files.filter((_, j) => j !== i) })}
+                        className="h-8 w-8 rounded-lg hover:bg-destructive/10 text-destructive flex items-center justify-center">
+                        <X className="h-4 w-4" />
+                      </button>
                     </div>
-                    <button onClick={() => setForm({ ...form, files: form.files.filter((_, j) => j !== i) })}
-                      className="h-8 w-8 rounded-lg hover:bg-destructive/10 text-destructive flex items-center justify-center">
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
