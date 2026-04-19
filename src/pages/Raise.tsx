@@ -515,6 +515,15 @@ ${LEGAL_DISCLAIMER}
                 }`}>{receipt.priority}</div>
               </div>
             </div>
+
+            <SeverityBadge priority={receipt.priority} className="mx-auto" />
+
+            <EditWindowTimer
+              startedAt={receipt.tsEpoch}
+              windowMinutes={15}
+              onEdit={() => setReceipt(null)}
+            />
+
             <div className="flex flex-col sm:flex-row gap-2 pt-2">
               <Button variant="hero" onClick={downloadFIRPdf} className="flex-1">
                 <FileSignature className="h-4 w-4 mr-1" /> {t("raise.firDraft")}
