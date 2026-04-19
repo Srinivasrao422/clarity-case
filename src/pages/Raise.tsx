@@ -45,6 +45,12 @@ import {
   BadgeCheck,
   Gavel,
   FileSignature,
+  MapPin,
+  Image as ImageIcon,
+  Video,
+  File as FileIcon,
+  Save,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getDepartment } from "@/lib/departments";
@@ -53,6 +59,9 @@ import { detectPriority, findDuplicates, maskId, type Priority } from "@/lib/sma
 import { useSpeechToText } from "@/hooks/use-speech-to-text";
 import { useI18n, type Lang } from "@/lib/i18n";
 import { generateFIRDraft, type FIRData } from "@/lib/firPdf";
+import { SignaturePad } from "@/components/SignaturePad";
+import { SeverityBadge } from "@/components/SeverityBadge";
+import { EditWindowTimer } from "@/components/EditWindowTimer";
 
 const categories = [
   { id: "theft", label: "Theft / Robbery", icon: ShieldAlert, color: "text-destructive", bg: "bg-destructive/10" },
