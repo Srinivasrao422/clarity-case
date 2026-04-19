@@ -549,9 +549,29 @@ ${LEGAL_DISCLAIMER}
   // ============================================================
   return (
     <div className="container py-10 max-w-4xl">
-      <div className="mb-8 animate-fade-in">
-        <h1 className="font-display text-3xl sm:text-4xl font-bold">{t("raise.title")}</h1>
-        <p className="text-muted-foreground mt-2">{t("raise.subtitle")}</p>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3 animate-fade-in">
+        <div>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold">{t("raise.title")}</h1>
+          <p className="text-muted-foreground mt-2">{t("raise.subtitle")}</p>
+          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+            <Clock className="h-3 w-3" /> Started at {new Date(createdAt).toLocaleString()}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {hasDraft && (
+            <Button variant="outline" size="sm" onClick={loadDraft}>
+              Restore draft
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={saveDraft}>
+            <Save className="h-3.5 w-3.5 mr-1" /> Save draft
+          </Button>
+          {hasDraft && (
+            <Button variant="ghost" size="sm" onClick={clearDraft} aria-label="Clear draft">
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Stepper */}
